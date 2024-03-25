@@ -12,8 +12,6 @@
 #include "DeckView.h"
 #include "CardView.h"
 
-//		for (auto& element : Deck)
-
 namespace Cards
 {
 	bool Card::operator==(Card card)
@@ -790,7 +788,7 @@ namespace Cards
 		{
 			if (Deck[showDeckPlayer].at(chosenCard).type == 2)
 			{
-				std::rotate(Deck[showDeckPlayer].begin(), Deck[showDeckPlayer].begin() + chosenCard, Deck[showDeckPlayer].end());
+				std::rotate(Deck[showDeckPlayer].begin() + offsetFront[showDeckPlayer], Deck[showDeckPlayer].begin() + chosenCard, Deck[showDeckPlayer].end() - offsetBack[showDeckPlayer]);
 				offsetFront[showDeckPlayer]++;
 				drawCard(showDeckPlayer);
 				whichHandCard = 0;

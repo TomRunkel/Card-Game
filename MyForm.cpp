@@ -59,7 +59,6 @@ int main(array<String^>^ args)
 	Cards::Card Orkberserker("Orkberserker", 1, 1, 19);
 				Orkberserker.addTraits(NAME_TRAIT5);
 //*****************************************************
-// Zentauern, Orkkrieger
 
 	for (int i = 0; i < 8; i++) DeckA.push_back(Bauern);
 	for (int i = 0; i < 6; i++) DeckA.push_back(Keulentraeger);
@@ -85,30 +84,6 @@ int main(array<String^>^ args)
 	for (int i = 0; i < 6; i++) DeckA.push_back(Orkkrieger);
 	for (int i = 0; i < 4; i++) DeckA.push_back(Orkberserker);
 
-	Deck[0].push_back(Hauptmann);
-	Deck[0].push_back(Hauptmann);
-	Deck[0].push_back(Lich);
-	Deck[0].push_back(Goblins);
-	Deck[0].push_back(Goblinhaeuptling);
-	Deck[0].push_back(Ghule);
-	Deck[0].push_back(Ghule);
-	Deck[0].push_back(Ghule);
-	Deck[0].push_back(Bauern);
-
-
-	Deck[1].push_back(Hauptmann);
-	Deck[1].push_back(Hauptmann);
-	Deck[1].push_back(Lich);
-	Deck[1].push_back(Oger);
-	Deck[1].push_back(Skelettkrieger);
-	Deck[1].push_back(Bauern);
-	Deck[1].push_back(Bauern);
-	Deck[1].push_back(Bauern);
-	Deck[1].push_back(Bauern);
-	Deck[1].push_back(Bauern);
-	Deck[1].push_back(Orkkrieger);
-
-
 	//*************** INITIATING HANDCARDS ****************
 	Cards::HandCard ErsteWelle(NAME_EFFECT1, TEXT_EFFECT1);
 	Cards::HandCard LetzteReserve(NAME_EFFECT2, TEXT_EFFECT2);
@@ -124,19 +99,6 @@ int main(array<String^>^ args)
 	for (int i = 0; i < 5; i++) DeckH.push_back(Kundschafter);
 	for (int i = 0; i < 5; i++) DeckH.push_back(Ueberblick);
 	for (int i = 0; i < 5; i++) DeckH.push_back(InPosition);
-
-	HandCards[0].push_back(ErsteWelle);
-	HandCards[0].push_back(LetzteReserve);
-	HandCards[0].push_back(JetztIhr);
-	HandCards[0].push_back(Kundschafter);
-	HandCards[0].push_back(Ueberblick);
-	HandCards[0].push_back(InPosition);
-	HandCards[0].push_back(ErsteWelle);
-	HandCards[0].push_back(LetzteReserve);
-	HandCards[0].push_back(JetztIhr);
-	HandCards[0].push_back(Kundschafter);
-	HandCards[0].push_back(Ueberblick);
-	HandCards[0].push_back(InPosition);
 
 	Application::EnableVisualStyles();
 	Application::SetCompatibleTextRenderingDefault(false);

@@ -512,7 +512,7 @@ namespace Cards
 			Deck.pop_back();
 		}
 		//**************************************
-		if (playerChoosing == 1) randompick(1, 0, 4);
+		//if (playerChoosing == 1) randompick(1, 0, 4);
 		//**************************************
 	}
 
@@ -596,8 +596,8 @@ namespace Cards
 		updateScore();
 
 		//**************************************
-		if (playerChoosing == 1 && !(counter == 0 && onceChosen == false))
-			randompick(1, 0, 4);
+		//if (playerChoosing == 1 && !(counter == 0 && onceChosen == false))
+		//	randompick(1, 0, 4);
 		//**************************************
 	}
 

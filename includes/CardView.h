@@ -66,6 +66,7 @@ namespace CardGame {
 			this->ShowIcon = false;
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"CardView";
+			this->FormClosing += gcnew System::Windows::Forms::FormClosingEventHandler(this, &CardView::CardView_FormClosing);
 			this->Load += gcnew System::EventHandler(this, &CardView::CardView_Load);
 			this->ResumeLayout(false);
 
@@ -175,6 +176,9 @@ namespace CardGame {
 			Cards::Controls::cardTraitsShowCard[i]->Click += gcnew System::EventHandler(this, &CardView::Card_Click_Label);
 		}
 	}
-	};
+	private: System::Void CardView_FormClosing(System::Object^ sender, System::Windows::Forms::FormClosingEventArgs^ e) {
+		Cards::highlightUseableCards();
+	}
+};
 }
 

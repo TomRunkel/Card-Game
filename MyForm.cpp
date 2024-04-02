@@ -91,6 +91,7 @@ int main(array<String^>^ args)
 	Cards::HandCard Kundschafter(NAME_EFFECT4, TEXT_EFFECT4);
 	Cards::HandCard Ueberblick(NAME_EFFECT5, TEXT_EFFECT5);
 	Cards::HandCard InPosition(NAME_EFFECT6, TEXT_EFFECT6);
+	Cards::HandCard Feldscher(NAME_EFFECT7, TEXT_EFFECT7);
 	//*****************************************************
 
 	for (int i = 0; i < 5; i++) DeckH.push_back(ErsteWelle);
@@ -99,7 +100,8 @@ int main(array<String^>^ args)
 	for (int i = 0; i < 5; i++) DeckH.push_back(Kundschafter);
 	for (int i = 0; i < 5; i++) DeckH.push_back(Ueberblick);
 	for (int i = 0; i < 5; i++) DeckH.push_back(InPosition);
-
+	for (int i = 0; i < 5; i++) DeckH.push_back(Feldscher);
+	
 	Application::EnableVisualStyles();
 	Application::SetCompatibleTextRenderingDefault(false);
 	CardGame::MyForm form;

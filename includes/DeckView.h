@@ -82,7 +82,9 @@ namespace CardGame {
 	}
 	private: System::Void DeckView_Load(System::Object^ sender, System::EventArgs^ e) {
 		std::vector<Cards::Card> chosenDeck = *ShowDeckDeck;
-		for (int i = pos[showDeckPlayer]; i < chosenDeck.size(); i++)
+		int cardPositionOffset;
+		(flag_showDeckWhole) ? cardPositionOffset = 0 : cardPositionOffset = pos[showDeckPlayer];
+		for (int i = cardPositionOffset; i < chosenDeck.size(); i++)
 		{
 			Panel^ MyPanel = (gcnew Panel());
 			Label^ MyPaneltraits = (gcnew System::Windows::Forms::Label());
@@ -108,7 +110,7 @@ namespace CardGame {
 			MyPanel->Controls->Add(MyPanelskill);
 			MyPanel->Controls->Add(MyPanelstrength);
 			MyPanel->Controls->Add(MyPanelname);
-			MyPanel->Location = System::Drawing::Point(5 + 180 * ((i - pos[showDeckPlayer]) % MAX_COLS_SHOWDECK), 5 + 244 * ((i - pos[showDeckPlayer]) / MAX_COLS_SHOWDECK));
+			MyPanel->Location = System::Drawing::Point(5 + 180 * ((i - cardPositionOffset) % MAX_COLS_SHOWDECK), 5 + 244 * ((i - cardPositionOffset) / MAX_COLS_SHOWDECK));
 			MyPanel->Name = L"Card" + i;
 			MyPanel->Size = System::Drawing::Size(178, 242);
 			MyPanel->Tag = i;

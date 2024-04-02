@@ -145,6 +145,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="includes\CardView.resx">
+      <DependentUpon>includes\CardView.h</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="includes\DeckView.resx">
       <DependentUpon>includes\DeckView.h</DependentUpon>
     </EmbeddedResource>

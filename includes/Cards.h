@@ -70,6 +70,7 @@
 #define NAME_EFFECT4 "Kundschafter"
 #define NAME_EFFECT5 "Überblick"
 #define NAME_EFFECT6 "In Position"
+#define NAME_EFFECT7 "Feldscher"
 
 #define TEXT_EFFECT1 "Bestimme eine Karte, die in der nächsten Partie zu Beginn gezogen wird"
 #define TEXT_EFFECT2 "Bestimme eine Karte, die in der nächsten Partie zuletzt gezogen wird"
@@ -77,6 +78,7 @@
 #define TEXT_EFFECT4 "Siehe dir die oberste Karte deines Gegners an"
 #define TEXT_EFFECT5 "Siehe dir die oberste Karte 3 Karten deines Decks an"
 #define TEXT_EFFECT6 "Lege 1 Karte der hinteren Reihe vor Begin aus"
+#define TEXT_EFFECT7 "Entferne eine beliebige Karte von deinem Ablagestapel"
 
 namespace Cards
 {
@@ -197,7 +199,7 @@ namespace Cards
 	void chooseCardHand(int player, int card);
 	void chooseDeckView(int chosenCard, System::Windows::Forms::Form^ form);
 	void chooseCardView(int chosenCard, System::Windows::Forms::Form^ form);
-	int maxStrength(int player, std::vector<Card> &Deck);
+	int maxStrength(std::vector<Card> &Deck);
 	void showHandCards();
 	void showDeck();
 	void showTopCards();

@@ -78,11 +78,11 @@ namespace CardGame {
 			// 
 			// StartButton
 			// 
-			this->StartButton->Enabled = false;
 			this->StartButton->Location = System::Drawing::Point(860, 5);
 			this->StartButton->Name = L"StartButton";
 			this->StartButton->Size = System::Drawing::Size(139, 50);
 			this->StartButton->TabIndex = 6;
+			this->StartButton->Text = L"Spiel starten";
 			this->StartButton->UseVisualStyleBackColor = true;
 			this->StartButton->Click += gcnew System::EventHandler(this, &MyForm::StartButton_Click);
 			// 
@@ -214,59 +214,87 @@ namespace CardGame {
 		Cards::chooseCard(System::Convert::ToInt16(senderObject->Tag));
 	}
 	private: System::Void Deck_Click_Panel(System::Object^ sender, System::EventArgs^ e) {
-		Panel^ senderObject = safe_cast<Panel^>(sender);
-		showDeckPlayer = (System::Convert::ToInt16(senderObject->Tag));
-		ShowDeckDeck = &Deck[showDeckPlayer];
-		Cards::showDeck();
+		if (phase < 21)
+		{
+			Panel^ senderObject = safe_cast<Panel^>(sender);
+			showDeckPlayer = (System::Convert::ToInt16(senderObject->Tag));
+			ShowDeckDeck = &Deck[showDeckPlayer];
+			Cards::showDeck();
+		}
 	}
 	private: System::Void Deck_Click_Label(System::Object^ sender, System::EventArgs^ e) {
-		Label^ senderObject = safe_cast<Label^>(sender);
-		showDeckPlayer = (System::Convert::ToInt16(senderObject->Tag));
-		ShowDeckDeck = &Deck[showDeckPlayer];
-		Cards::showDeck();
+		if (phase < 21)
+		{
+			Label^ senderObject = safe_cast<Label^>(sender);
+			showDeckPlayer = (System::Convert::ToInt16(senderObject->Tag));
+			ShowDeckDeck = &Deck[showDeckPlayer];
+			Cards::showDeck();
+		}
 	}
 	private: System::Void DiscardPile_Click_Panel(System::Object^ sender, System::EventArgs^ e) {
 		Panel^ senderObject = safe_cast<Panel^>(sender);
 		showDeckPlayer = (System::Convert::ToInt16(senderObject->Tag));
 		ShowDeckDeck = &DiscardPile[showDeckPlayer];
+		flag_showDeckWhole = true;
 		Cards::showDeck();
+		flag_showDeckWhole = false;
 	}
 	private: System::Void DiscardPile_Click_Label(System::Object^ sender, System::EventArgs^ e) {
 		Label^ senderObject = safe_cast<Label^>(sender);
 		showDeckPlayer = (System::Convert::ToInt16(senderObject->Tag));
 		ShowDeckDeck = &DiscardPile[showDeckPlayer];
+		flag_showDeckWhole = true;
 		Cards::showDeck();
+		flag_showDeckWhole = false;
 	}
 	private: System::Void StartButton_Click(System::Object^ sender, System::EventArgs^ e) {
-		if (Cards::Controls::button1->Text == "Nächste Runde") 
+		if (phase == 0)			// Spielstart
 		{
-			Cards::gameRestart();
-			Cards::showHandCards();
-			draftHandCard(DeckH);
+			phase = 10;
+			counter = ROUNDS_DRAFT_START;
 			Cards::Controls::button1->Enabled = false;
-			Cards::Controls::button1->Text = counter.ToString();
+			Cards::draftCard(DeckA);
 			return;
-		}		
-		if (Cards::Controls::button1->Text == "Draft") 
+		}
+		if (phase == 11)		// Draft zwischen Matches
 		{
 			counter = ROUNDS_DRAFT_DURING;
 			Cards::highlightUseableCards();
-			draftCard(DeckA);
 			Cards::Controls::button1->Enabled = false;
 			Cards::Controls::button1->Text = counter.ToString();
+			draftCard(DeckA);
 			return;
 		}
-		if (turn == 0)
+		if (phase == 20)		// Draftende
 		{
+			phase = 21;
 			for (int j = 0; j < COUNT_PLAYERS; j++)
-				Cards::shuffleDeck(Deck[j], offsetFront[j] + pos[j], offsetBack[j]);
-			Cards::Controls::button1->Text = "Start";
+				Cards::shuffleDeck(Deck[j], offsetFront[j], offsetBack[j]);
+			Cards::Controls::button1->Text = "Match starten";
 			turn++;
 			Cards::highlightUseableCards();
 			return;
 		}
-		if (turn == 1)
+		if (phase == 13)		// Matchende
 		{
+			phase = 11;
+			Cards::gameRestart();
+			if (flag_winner)
+			{
+				Cards::showHandCards();
+				draftHandCard(DeckH);
+				Cards::Controls::button1->Enabled = false;
+				Cards::Controls::button1->Text = counter.ToString();
+			}
+			else
+			{
+				Cards::Controls::button1->Text = "Draft starten";
+			}
+			return;
+		}		
+		if (phase == 21)		// Matchstart
+		{
+			phase = 22;
 			Cards::Controls::button1->Text = "Weiter";
 		}
 		if (flag_attacker == true
@@ -755,7 +783,6 @@ namespace CardGame {
 			(j == 0) ? Cards::Controls::score[j] = scoreL : Cards::Controls::score[j] = scoreR;
 		}
 		Cards::updatePiles();
-		Cards::draftCard(DeckA);
 		Cards::showHandCards();
 	}
 	};

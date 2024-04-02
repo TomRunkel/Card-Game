@@ -154,7 +154,7 @@ namespace Cards
 	void updateScore()
 	{
 		int score[COUNT_PLAYERS] = { 0, 0 };
-		bool firstVisible = true;
+		bool firstVisible[COUNT_PLAYERS] = { true, true };
 		for (int j = 0; j < COUNT_PLAYERS; j++)
 		{
 			countCards[j] = 0;
@@ -164,6 +164,7 @@ namespace Cards
 			flag_cavalry[j] = false;
 			flag_humen[j] = false;
 			flag_elves[j] = false;
+			flag_lich[j] = false;
 		}
 		for (int j = 0; j < COUNT_PLAYERS; j++)
 		{
@@ -221,10 +222,10 @@ namespace Cards
 						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(i).strength + flag_humen[1 - j] * 2 + flag_elves[1 - j] * 2).ToString();
 					if (Cards::Controls::cardskills[j, i]->Text == NAME_SKILL12 || Cards::Controls::cardskill2s[j, i]->Text == NAME_SKILL12)							// Skelettkrieger
 					{
-						if (flag_lich)
-							Cards::Controls::cardstrengths[j, i]->Text = max(maxStrength(j, DiscardPile[1 - j]), maxStrength(j, DiscardPile[j])).ToString();
+						if (flag_lich[j])
+							Cards::Controls::cardstrengths[j, i]->Text = max(maxStrength(DiscardPile[1 - j]), maxStrength(DiscardPile[j])).ToString();
 						else
-							Cards::Controls::cardstrengths[j, i]->Text = maxStrength(j, DiscardPile[1 - j]).ToString();
+							Cards::Controls::cardstrengths[j, i]->Text = maxStrength(DiscardPile[1 - j]).ToString();
 					}
 					if (Cards::Controls::cardskills[j, i]->Text == NAME_SKILL9 || Cards::Controls::cardskill2s[j, i]->Text == NAME_SKILL9)								// Elfen
 						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(i).strength + discardSearch(j, true, NAME_TRAIT7)).ToString();
@@ -236,10 +237,10 @@ namespace Cards
 							+ (discardSearch(1 - j, false, NAME_TRAIT7) | (flag_lich[j] & (bool)discardSearch(j, false, NAME_TRAIT7)))
 							+ (discardSearch(1 - j, false, NAME_TRAIT9) | (flag_lich[j] & (bool)discardSearch(j, false, NAME_TRAIT9)))).ToString();
 					Cards::Controls::cardstrengths[j, i]->Text = (System::Convert::ToInt16(Cards::Controls::cardstrengths[j, i]->Text) + flag_banner[j]).ToString();	// Banner
-					if (firstVisible)																																	// Fernkampf (always last!)
+					if (firstVisible[j])																																	// Fernkampf (always last!)
 					{
 						Cards::Controls::cardstrengths[j, i]->Text = (System::Convert::ToInt16(Cards::Controls::cardstrengths[j, i]->Text) - count_rangeHits[j]).ToString();
-						firstVisible = false;
+						firstVisible[j] = false;
 					}
 
 					score[j] += System::Convert::ToInt16(Cards::Controls::cardstrengths[j, i]->Text);
@@ -336,7 +337,7 @@ namespace Cards
 								  : Cards::Controls::cardsRemain[player]->Location = System::Drawing::Point(1603 + 2 * (pos[player] + 1), 243 + 2 * (pos[player] + 1));
 					pos[player]++;
 					updatePiles();
-					if (whichHandCard != 6) drawCard(player);			//Karte wird verdoppelt whichhandcard6?!?!?!?
+					if (whichHandCard != 6) return drawCard(player);			//Karte wird verdoppelt whichhandcard6?!?!?!?
 					return i;
 				}
 			}
@@ -383,7 +384,6 @@ namespace Cards
 	{
 		for (int j = 0; j < COUNT_PLAYERS; j++)
 		{
-			flag_lich[j] = false;
 			for (int i = 0; i < MAX_CARDS_BACKLINE; i++)
 			{
 				if (Cards::Controls::cardPanelsBackline[j, i]->Visible == true)
@@ -399,8 +399,14 @@ namespace Cards
 
 	void gameOver(int winner)
 	{
-		victoryPoints[winner]++;
-		playerChoosing = winner;
+		phase = 13;
+		highlightUseableCards();
+		if (winner >= 0)
+		{
+			victoryPoints[winner]++;
+			flag_winner = true;
+		}
+		(winner >= 0) ? playerChoosing = winner : playerChoosing = 1 - playerChoosing;
 		System::String^ stringPart;
 		System::String^ message;
 		if (winner == 1) stringPart = "Rechter";
@@ -643,6 +649,7 @@ namespace Cards
 			if (counter > 0) draftCard(DeckA);
 			if (counter <= 0)
 			{
+				phase = 20;
 				for (int j = 0; j < COUNT_PLAYERS; j++)
 					std::sort(Deck[j].begin(), Deck[j].end(), SortCards());
 				Cards::Controls::button1->Enabled = true;
@@ -674,6 +681,7 @@ namespace Cards
 		if (counter > 0) draftHandCard(DeckH);
 		if (counter <= 0)
 		{
+			flag_winner = false;
 			Cards::Controls::button1->Enabled = true;
 			Cards::Controls::button1->Text = "Draft";
 		}
@@ -681,6 +689,7 @@ namespace Cards
 
 	void chooseCardBackline(int player, int card)
 	{
+		if (Cards::Controls::cardPanelsBackline[player, card]->BackColor == System::Drawing::Color::COLOR_TYP2) return;
 		if (flag_banner[player] == false && flag_attacker == false && (Cards::Controls::cardskillsBackline[player, card]->Text == NAME_SKILL17 || Cards::Controls::cardskill2sBackline[player, card]->Text == NAME_SKILL17))  // Banner
 		{
 			flag_banner[player] = true;
@@ -731,6 +740,7 @@ namespace Cards
 	{
 		if (Cards::Controls::cardPanelsHand[player, card]->BackColor == System::Drawing::Color::COLOR_TYP3) return;
 		showDeckPlayer = player;
+		showDeckCard = card;
 		ShowDeckDeck = &Deck[player];
 		if (HandCards[player].at(card).name == NAME_EFFECT1)
 		{
@@ -767,7 +777,15 @@ namespace Cards
 			whichHandCard = 6;
 			showDeck();
 		}
-		Cards::Controls::cardPanelsHand[player, card]->Visible = false;
+		else if (HandCards[player].at(card).name == NAME_EFFECT7)
+		{
+			showDeckPlayer = player;
+			ShowDeckDeck = &DiscardPile[player];
+			flag_showDeckWhole = true;
+			whichHandCard = 7;
+			showDeck();
+			flag_showDeckWhole = false;
+		}
 	}
 
 	void chooseDeckView(int chosenCard, System::Windows::Forms::Form^ form)
@@ -776,24 +794,36 @@ namespace Cards
 		{
 			std::rotate(Deck[showDeckPlayer].begin() + offsetFront[showDeckPlayer], Deck[showDeckPlayer].begin() + chosenCard, Deck[showDeckPlayer].end() - offsetBack[showDeckPlayer]);
 			offsetFront[showDeckPlayer]++;
+			Cards::Controls::cardPanelsHand[showDeckPlayer, showDeckCard]->Visible = false;
 			form->Close();
 		}
 		if (whichHandCard == 2)
 		{
 			std::rotate(Deck[showDeckPlayer].begin() + offsetFront[showDeckPlayer], Deck[showDeckPlayer].begin() + chosenCard + 1, Deck[showDeckPlayer].end() - offsetBack[showDeckPlayer]);
 			offsetBack[showDeckPlayer]++;
+			Cards::Controls::cardPanelsHand[showDeckPlayer, showDeckCard]->Visible = false;
 			form->Close();
 		}
 		if (whichHandCard == 6)
 		{
 			if (Deck[showDeckPlayer].at(chosenCard).type == 2)
 			{
-				std::rotate(Deck[showDeckPlayer].begin() + offsetFront[showDeckPlayer], Deck[showDeckPlayer].begin() + chosenCard, Deck[showDeckPlayer].end() - offsetBack[showDeckPlayer]);
+				std::rotate(Deck[showDeckPlayer].begin() + pos[showDeckPlayer], Deck[showDeckPlayer].begin() + chosenCard, Deck[showDeckPlayer].end());
 				offsetFront[showDeckPlayer]++;
+				Cards::Controls::cardPanelsHand[showDeckPlayer, showDeckCard]->Visible = false;
 				drawCard(showDeckPlayer);
+				std::rotate(Deck[showDeckPlayer].begin() + pos[showDeckPlayer], Deck[showDeckPlayer].end() - chosenCard + pos[showDeckPlayer] - 1, Deck[showDeckPlayer].end());
 				whichHandCard = 0;
 				form->Close();
 			}
+		}
+		if (whichHandCard == 7)
+		{
+			DiscardPile[showDeckPlayer].erase(DiscardPile[showDeckPlayer].begin() + chosenCard);
+			Cards::Controls::cardPanelsHand[showDeckPlayer, showDeckCard]->Visible = false;
+			whichHandCard = 0;
+			updatePiles();
+			form->Close();
 		}
 	}
 
@@ -810,7 +840,7 @@ namespace Cards
 		}
 	}
 
-	int maxStrength(int player, std::vector<Card> &Deck)
+	int maxStrength(std::vector<Card> &Deck)
 	{
 		int max = 0;
 		for (int i = 0; i < Deck.size(); i++)
@@ -861,46 +891,67 @@ namespace Cards
 
 	void highlightUseableCards()
 	{
-		for (int j = 0; j < COUNT_PLAYERS; j++)
+		if (phase < 20)
 		{
-			for (int i = 0; i < MAX_CARDS_BACKLINE; i++)
+			for (int j = 0; j < COUNT_PLAYERS; j++)
 			{
-				if (Cards::Controls::cardPanelsBackline[j, i]->Visible == true)
+				for (int i = 0; i < MAX_CARDS_BACKLINE; i++)
 				{
-					if (
-						((Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL13 || Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL11
-						|| Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL13 || Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL11)
-						&& j == 1 - attacker && flag_defenders == false && flag_attacker == true)			// Fernkampf
-						|| (flag_banner[j] == false && flag_attacker == false && (Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL17
-						|| Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL17))				// Banner
-						|| ((Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL10 || Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL10)
-						&& Deck[1 - j].size() != pos[1 - j])											 // Katapult
-						)
-					{
-						Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_HIGHLIGHT;;
-					}
-					else
-						Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_TYP2;
+					Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_TYP2;
+				}
+				for (int i = 0; i < MAX_HANDCARDS; i++)
+				{
+					Cards::Controls::cardPanelsHand[j, i]->BackColor = System::Drawing::Color::COLOR_TYP3;
 				}
 			}
-			for (int i = 0; i < MAX_HANDCARDS; i++)
+		}
+		else
+		{
+			for (int j = 0; j < COUNT_PLAYERS; j++)
 			{
-				if (Cards::Controls::cardPanelsHand[j, i]->Visible == true)
+				if (phase > 20)		// nach dem Mischen
 				{
-					if (
-						((HandCards[j].at(i).name == NAME_EFFECT1 || HandCards[j].at(i).name == NAME_EFFECT2 || HandCards[j].at(i).name == NAME_EFFECT6)
-							&& counter <= 0 && Cards::Controls::button1->Text == "Decks mischen")					// Erste Welle & Letzte Reserve & In Position
-						|| 
-						(((HandCards[j].at(i).name == NAME_EFFECT3 && Deck[j].size() - pos[j] >= 2)
-							|| (HandCards[j].at(i).name == NAME_EFFECT4 && Deck[1 - j].size() - pos[1 - j] >= 1)
-							|| (HandCards[j].at(i).name == NAME_EFFECT5 && Deck[j].size() - pos[j] >= 3))
-							&& counter <= 0 && Cards::Controls::button1->Text != "Decks mischen")					// Jetzt ihr & Kundschafter & Überblick
-						)
+					for (int i = 0; i < MAX_CARDS_BACKLINE; i++)
 					{
-						Cards::Controls::cardPanelsHand[j, i]->BackColor = System::Drawing::Color::COLOR_HIGHLIGHT;;
+						if (Cards::Controls::cardPanelsBackline[j, i]->Visible == true)
+						{
+							if (
+								((Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL13 || Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL11
+									|| Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL13 || Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL11)
+									&& j == 1 - attacker && flag_defenders == false && flag_attacker == true)			// Fernkampf
+								|| (flag_banner[j] == false && flag_attacker == false && (Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL17
+									|| Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL17))				// Banner
+								|| ((Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL10 || Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL10)
+									&& Deck[1 - j].size() != pos[1 - j])											 // Katapult
+								)
+							{
+								Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_HIGHLIGHT;;
+							}
+							else
+								Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_TYP2;
+						}
 					}
-					else
-						Cards::Controls::cardPanelsHand[j, i]->BackColor = System::Drawing::Color::COLOR_TYP3;
+				}
+				for (int i = 0; i < MAX_HANDCARDS; i++)
+				{
+					if (Cards::Controls::cardPanelsHand[j, i]->Visible == true)
+					{
+						if (
+							((HandCards[j].at(i).name == NAME_EFFECT1 || HandCards[j].at(i).name == NAME_EFFECT2 || HandCards[j].at(i).name == NAME_EFFECT6)
+								&& phase == 20)					// Erste Welle & Letzte Reserve & In Position
+							||
+							(((HandCards[j].at(i).name == NAME_EFFECT3 && Deck[j].size() - pos[j] >= 2)
+								|| (HandCards[j].at(i).name == NAME_EFFECT4 && Deck[1 - j].size() - pos[1 - j] >= 1)
+								|| (HandCards[j].at(i).name == NAME_EFFECT5 && Deck[j].size() - pos[j] >= 3)
+								|| (HandCards[j].at(i).name == NAME_EFFECT7 && DiscardPile[j].size() > 0))
+								&& phase > 20 && flag_attacker == false)					// Jetzt ihr & Kundschafter & Überblick & Feldscher
+							)
+						{
+							Cards::Controls::cardPanelsHand[j, i]->BackColor = System::Drawing::Color::COLOR_HIGHLIGHT;;
+						}
+						else
+							Cards::Controls::cardPanelsHand[j, i]->BackColor = System::Drawing::Color::COLOR_TYP3;
+					}
 				}
 			}
 		}

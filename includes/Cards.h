@@ -17,21 +17,22 @@
 #define COUNT_PLAYERS 2
 #define MAX_CARDSTOCHOSE 5
 #define MAX_HANDCARDSTOCHOSE 5
-#define ROUNDS_DRAFT_START 5
-#define ROUNDS_DRAFT_DURING 3
+#define ROUNDS_DRAFT_START 4
+#define ROUNDS_DRAFT_DURING 1
 #define MAX_VICTORY_POINTS 10
 
 #define COLOR_TYP1 White
 #define COLOR_TYP2 LightBlue
 #define COLOR_TYP3 LightGray
-#define COLOR_HIGHLIGHT Yellow
+#define COLOR_HIGHLIGHT1 Yellow
+#define COLOR_HIGHLIGHT2 Red
 
-#define LEFT_CHOOSE  "Linker Spieler darf seinem Deck eine Karte hinzufügen"
-#define RIGHT_CHOOSE "Rechter Spieler darf seinem Deck eine Karte hinzufügen"
-#define LEFT_CHOOSE_HANDCARD  "Linker Spieler hat verloren und darf seinem Deck eine Handkarte hinzufügen"
-#define RIGHT_CHOOSE_HANDCARD "Rechter Spieler hat verloren und darf seinem Deck eine Handkarte hinzufügen"
-#define LEFT_ATTACK  "Linker Spieler greift an"
-#define RIGHT_ATTACK "Rechter Spieler greift an"
+#define TEXT_CHOOSE  "Spieler darf seinem Deck eine Karte hinzufügen"
+#define TEXT_CHOOSE_HANDCARD  "Spieler hat verloren und darf seinem Deck eine Handkarte hinzufügen"
+#define TEXT_ATTACK  "Spieler greift an"
+#define TEXT_ATTACK_OR_DRAFT "Spieler entscheidet"
+#define TEXT_ASSASSIN "Spieler darf eine Einheit des Gegners meucheln"
+#define TEXT_SABOTEUR "Spieler darf eine Maschine des Gegners sabotieren"
 
 #define NAME_SKILL1 "Gemeinsamer Angriff"
 #define NAME_SKILL2 "Masseneuphorie"
@@ -52,6 +53,16 @@
 #define NAME_SKILL17 "Banner"
 #define NAME_SKILL18 "Hass"
 #define NAME_SKILL19 "Blutdurst"
+#define NAME_SKILL20 "Heilung"
+#define NAME_SKILL21 "Meuchelmord"
+#define NAME_SKILL22 "Sabotage"
+#define NAME_SKILL23 ""
+#define NAME_SKILL24 ""
+#define NAME_SKILL25 ""
+#define NAME_SKILL26 ""
+#define NAME_SKILL27 ""
+#define NAME_SKILL28 ""
+#define NAME_SKILL29 ""
 
 #define NAME_TRAIT1 "Mensch"
 #define NAME_TRAIT2 "beritten"
@@ -137,6 +148,7 @@ namespace Cards
 		static array<System::Windows::Forms::Label^>^ cardsRemain = gcnew array<System::Windows::Forms::Label^>(COUNT_PLAYERS);
 		static array<System::Windows::Forms::Label^>^ score = gcnew array<System::Windows::Forms::Label^>(COUNT_PLAYERS);
 		static array<System::Windows::Forms::Label^>^ messageLabel = gcnew array<System::Windows::Forms::Label^>(COUNT_PLAYERS);
+		static array<System::Windows::Forms::Button^, COUNT_PLAYERS>^ buttons = gcnew array<System::Windows::Forms::Button^, COUNT_PLAYERS>(COUNT_PLAYERS, 2);
 		static System::Windows::Forms::Button^ button1 = gcnew System::Windows::Forms::Button;
 	};
 	class Card
@@ -190,7 +202,7 @@ namespace Cards
 	void draftCard(std::vector<Card> &Deck);
 	void draftHandCard(std::vector<HandCard> &Deck);
 	void draftCardOver(std::vector<Card> &Deck);
-	void draftHandCardOver(std::vector<HandCard>& DeckofCards);
+	void draftHandCardOver(std::vector<HandCard> &DeckofCards);
 	void chooseCard(int chosenCard);
 	void chooseCardHandCard3(int chosenCard);
 	void chooseHandCardDraft(int chosenCard);
@@ -205,4 +217,6 @@ namespace Cards
 	void showTopCards();
 	void randompick(int player, int min, int max);
 	void highlightUseableCards();
+	void startMatch();
+	void showMessage(int player, System::String^ message);
 }

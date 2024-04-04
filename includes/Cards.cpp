@@ -88,6 +88,26 @@ namespace Cards
 			return NAME_SKILL18;
 		case 19:
 			return NAME_SKILL19;
+		case 20:
+			return NAME_SKILL20;
+		case 21:
+			return NAME_SKILL21;
+		case 22:
+			return NAME_SKILL22;
+		case 23:
+			return NAME_SKILL23;
+		case 24:
+			return NAME_SKILL24;
+		case 25:
+			return NAME_SKILL25;
+		case 26:
+			return NAME_SKILL26;
+		case 27:
+			return NAME_SKILL27;
+		case 28:
+			return NAME_SKILL28;
+		case 29:
+			return NAME_SKILL29;
 		default:
 			return "";
 		}
@@ -293,35 +313,86 @@ namespace Cards
 				if (Cards::Controls::cardPanels[player, i]->Visible == true) continue;
 				else
 				{
-					FrontlineCards[player].push_back(Deck[player][pos[player]]);
-					Cards::Controls::cardnames[player, i]->Text = gcnew System::String(Deck[player][pos[player]].name.data());								//convert std::string into System::String
-					Cards::Controls::cardstrengths[player, i]->Text = Deck[player][pos[player]].strength.ToString();
-					Cards::Controls::cardskills[player, i]->Text = gcnew System::String(Deck[player][pos[player]].writeSkill(Deck[player][pos[player]].skill).data());
-					Cards::Controls::cardskill2s[player, i]->Text = gcnew System::String(Deck[player][pos[player]].writeSkill(Deck[player][pos[player]].skill2).data());
-					Cards::Controls::cardtraits[player, i]->Text = gcnew System::String(Deck[player][pos[player]].traits.data());
+					if (player == attacker || DefenderDeck[player].size() == defenderPos[player] || flag_defenderDeck[player] == 0 || flag_defenders == true)
+					{
+						FrontlineCards[player].push_back(Deck[player][pos[player]]);
+						pos[player]++;
+					}
+					else
+					{
+						FrontlineCards[player].push_back(DefenderDeck[player][defenderPos[player]]);
+						defenderPos[player]++;
+					}
+					Cards::Controls::cardnames[player, i]->Text = gcnew System::String(FrontlineCards[player].back().name.data());								//convert std::string into System::String
+					Cards::Controls::cardstrengths[player, i]->Text = FrontlineCards[player].back().strength.ToString();
+					Cards::Controls::cardskills[player, i]->Text = gcnew System::String(FrontlineCards[player].back().writeSkill(FrontlineCards[player].back().skill).data());
+					Cards::Controls::cardskill2s[player, i]->Text = gcnew System::String(FrontlineCards[player].back().writeSkill(FrontlineCards[player].back().skill2).data());
+					Cards::Controls::cardtraits[player, i]->Text = gcnew System::String(FrontlineCards[player].back().traits.data());
 					Cards::Controls::cardPanels[player, i]->Visible = true;
 					Cards::Controls::cardPanels[player, i]->BringToFront();
-					pos[player]++;
-					if (player == attacker && Deck[player][pos[player] - 1].skill == 15 || Deck[player][pos[player] - 1].skill2 == 15)						// Anführer
+					if (player == attacker && FrontlineCards[player].back().skill == 15 || FrontlineCards[player].back().skill2 == 15)						// Anführer
 					{
 						drawCard(player);
 						drawCard(player);
 					}
-					if (player == attacker && Deck[player][pos[player] - 1].skill == 1 || Deck[player][pos[player] - 1].skill2 == 1)						// Gemeinsamer Angriff
+					if (player == attacker && FrontlineCards[player].back().skill == 1 || FrontlineCards[player].back().skill2 == 1)						// Gemeinsamer Angriff
 						drawCard(player);
+					if (FrontlineCards[player].back().skill == 21 || FrontlineCards[player].back().skill2 == 21)											// Meuchler
+					{
+						flag_assassin[player] = true;
+						updatePiles();
+						if (flag_possible)
+						{
+							Cards::Controls::button1->Enabled = false;
+							Cards::Controls::button1->Text = "";
+							showMessage(player, TEXT_ASSASSIN);
+						}
+						else
+						{
+							flag_assassin[player] = false;
+							Cards::Controls::cardPanels[player, i]->Visible = false;
+							DiscardPile[player].push_back(FrontlineCards[player].back());
+							FrontlineCards[player].pop_back();
+							return i;
+						}
+					}
+					if (FrontlineCards[player].back().skill == 22 || FrontlineCards[player].back().skill2 == 22)											// Saboteur
+					{
+						flag_saboteur[player] = true;
+						updatePiles();
+						if (flag_possible)
+						{
+							Cards::Controls::button1->Enabled = false;
+							Cards::Controls::button1->Text = "";
+							showMessage(player, TEXT_SABOTEUR);
+						}
+						else
+						{
+							flag_saboteur[player] = false;
+							Cards::Controls::cardPanels[player, i]->Visible = false;
+							DiscardPile[player].push_back(FrontlineCards[player].back());
+							FrontlineCards[player].pop_back();
+							return i;
+						}
+					}
 					updatePiles();
 					return i;
 				}
 			}
 			break;
-			break;
 		case 2:
+			int cardBackline = 0;
+			for (int i = 0; i < MAX_CARDS_BACKLINE; i++)
+			{
+				if (Cards::Controls::cardPanelsBackline[player, i]->Visible == true) cardBackline++;
+				else break;
+			}
 			for (int i = 0; i < MAX_CARDS_BACKLINE; i++)
 			{
 				if (Cards::Controls::cardPanelsBackline[player, i]->Visible == true) continue;
 				else
 				{
-					BacklineCards[player].push_back(Deck[player][pos[player]]);
+					BacklineCards[player].insert(BacklineCards[player].begin() + cardBackline, Deck[player][pos[player]]);
 					Cards::Controls::cardnamesBackline[player, i]->Text = gcnew System::String(Deck[player][pos[player]].name.data());
 					Cards::Controls::cardstrengthsBackline[player, i]->Text = Deck[player][pos[player]].strength.ToString();
 					if (Deck[player][pos[player]].strength == 0)
@@ -400,6 +471,7 @@ namespace Cards
 	void gameOver(int winner)
 	{
 		phase = 13;
+		flag_matchStart = false;
 		highlightUseableCards();
 		if (winner >= 0)
 		{
@@ -413,6 +485,7 @@ namespace Cards
 		else if (winner == 0) stringPart = "Linker";
 		else if (winner == -1)
 		{
+			flag_winner = false;
 			message = "Unentschieden!";
 			Cards::Controls::button1->Text = "Nächste Runde";
 			CardGame::MessageBox::Show(message);
@@ -421,6 +494,7 @@ namespace Cards
 		int i;
 		for (i = 0; i < MAX_VICTORY_POINTS; i++)
 		{
+			if (flag_defenderDeck[winner] == 1) break;
 			if (Cards::Controls::pictureBoxes[winner, i]->Visible == false)
 			{
 				(Cards::Controls::pictureBoxes[winner, i]->Visible = true);
@@ -451,6 +525,8 @@ namespace Cards
 			offsetFront[j] = 0;
 			offsetBack[j] = 0;
 			pos[j] = 0;
+			defenderPos[j] = 0;
+			flag_defenderDeck[j] = 0;
 			Cards::shuffleDeck(Deck[j], offsetFront[j], offsetBack[j]);
 			for (auto& element : DiscardPile[j])
 				DiscardPile[j].pop_back();
@@ -484,15 +560,9 @@ namespace Cards
 
 	void draftCard(std::vector<Card> &Deck)
 	{
+		CurrentDraftDeck = &Deck;
 		Cards::Controls::button1->Text = counter.ToString();
-		if (playerChoosing == 0)
-		{
-			Cards::Controls::messageLabel[playerChoosing]->Text = LEFT_CHOOSE;
-		}
-		else
-		{
-			Cards::Controls::messageLabel[playerChoosing]->Text = RIGHT_CHOOSE;
-		}
+		showMessage(playerChoosing, TEXT_CHOOSE);
 		Cards::Controls::messageLabel[1 - playerChoosing]->Text = "";
 		shuffleDeck(Deck, 0, 0);
 		for (int i = 0; i < MAX_CARDSTOCHOSE; i++)
@@ -526,14 +596,7 @@ namespace Cards
 	{
 		counter = 1;
 		Cards::Controls::button1->Text = counter.ToString();
-		if (1 - playerChoosing == 0)
-		{
-			Cards::Controls::messageLabel[1 - playerChoosing]->Text = LEFT_CHOOSE_HANDCARD;
-		}
-		else
-		{
-			Cards::Controls::messageLabel[1 - playerChoosing]->Text = RIGHT_CHOOSE_HANDCARD;
-		}
+		showMessage(1 - playerChoosing, TEXT_CHOOSE_HANDCARD);
 		Cards::Controls::messageLabel[playerChoosing]->Text = "";
 		shuffleDeckHandCards(Deck);
 		for (int i = 0; i < MAX_HANDCARDSTOCHOSE; i++)
@@ -620,8 +683,17 @@ namespace Cards
 			return;
 		}
 
-		Cards::Controls::button1->Text = counter.ToString();			//Draftíng DeckCards
-		Deck[playerChoosing].push_back(CardsToChose.at(chosenCard));
+		Cards::Controls::button1->Text = counter.ToString();			
+		if (flag_defenderDeck[playerChoosing])															//Draftíng DefenderCards
+		{
+			DefenderDeck[playerChoosing].push_back(CardsToChose.at(chosenCard));
+			Cards::Controls::cardSelectionPanels[chosenCard]->Visible = false;
+			CardsToChose.erase(CardsToChose.begin() + chosenCard);
+			draftCardOver(*CurrentDraftDeck);
+			startMatch();
+			return;
+		}
+		Deck[playerChoosing].push_back(CardsToChose.at(chosenCard));									//Draftíng DeckCards
 		Cards::Controls::backPanels[playerChoosing, Deck[playerChoosing].size() - 1]->Visible = true;
 		Cards::Controls::backPanels[playerChoosing, Deck[playerChoosing].size() - 1]->SendToBack();
 		Cards::Controls::cardSelectionPanels[chosenCard]->Visible = false;
@@ -629,41 +701,29 @@ namespace Cards
 		onceChosen = 1 - onceChosen;
 		if (onceChosen == true) firstCard = chosenCard;
 		playerChoosing = 1 - playerChoosing;
-		if (playerChoosing == 0)
-		{
-			Cards::Controls::messageLabel[playerChoosing]->Text = LEFT_CHOOSE;
-			Cards::Controls::messageLabel[1 - playerChoosing]->Text = "";
-		}
-		else
-		{
-			Cards::Controls::messageLabel[playerChoosing]->Text = RIGHT_CHOOSE;
-			Cards::Controls::messageLabel[1 - playerChoosing]->Text = "";
-		}
+		showMessage(playerChoosing, TEXT_CHOOSE);
 		if (onceChosen == false)
 		{
 			CardsToChose.erase(CardsToChose.begin() + max(firstCard, chosenCard));
 			CardsToChose.erase(CardsToChose.begin() + min(firstCard, chosenCard));
 			playerChoosing = 1 - playerChoosing;
 			counter--;
-			draftCardOver(DeckA);
+			draftCardOver(*CurrentDraftDeck);
 			if (counter > 0) draftCard(DeckA);
 			if (counter <= 0)
 			{
-				phase = 20;
-				for (int j = 0; j < COUNT_PLAYERS; j++)
-					std::sort(Deck[j].begin(), Deck[j].end(), SortCards());
-				Cards::Controls::button1->Enabled = true;
-				Cards::Controls::button1->Text = "Decks mischen";
-				highlightUseableCards();
-				if (attacker == 0)
+				if (flag_wait)
 				{
-					Cards::Controls::messageLabel[attacker]->Text = LEFT_ATTACK;
-					Cards::Controls::messageLabel[1 - attacker]->Text = "";
+					Cards::Controls::button1->Text = "";
+					Cards::Controls::buttons[playerChoosing, 0]->Visible = true;
+					Cards::Controls::buttons[playerChoosing, 1]->Visible = true;
+					Cards::Controls::buttons[1 - playerChoosing, 0]->Visible = false;
+					Cards::Controls::buttons[1 - playerChoosing, 1]->Visible = false;
+					showMessage(playerChoosing, TEXT_ATTACK_OR_DRAFT);
 				}
 				else
 				{
-					Cards::Controls::messageLabel[attacker]->Text = RIGHT_ATTACK;
-					Cards::Controls::messageLabel[1 - attacker]->Text = "";
+					startMatch();
 				}
 			}
 		}
@@ -681,7 +741,6 @@ namespace Cards
 		if (counter > 0) draftHandCard(DeckH);
 		if (counter <= 0)
 		{
-			flag_winner = false;
 			Cards::Controls::button1->Enabled = true;
 			Cards::Controls::button1->Text = "Draft";
 		}
@@ -689,20 +748,85 @@ namespace Cards
 
 	void chooseCardBackline(int player, int card)
 	{
+		int cardBackline = 0;
+		int cardFrontline = 0;
+		for (int i = 0; i < card; i++)
+		{
+			if (Cards::Controls::cardPanelsBackline[player, i]->Visible == true) cardBackline++;
+		}
 		if (Cards::Controls::cardPanelsBackline[player, card]->BackColor == System::Drawing::Color::COLOR_TYP2) return;
-		if (flag_banner[player] == false && flag_attacker == false && (Cards::Controls::cardskillsBackline[player, card]->Text == NAME_SKILL17 || Cards::Controls::cardskill2sBackline[player, card]->Text == NAME_SKILL17))  // Banner
+		if (Cards::Controls::cardPanelsBackline[player, card]->BackColor == System::Drawing::Color::COLOR_HIGHLIGHT2)		// Meuchler & Saboteur
+		{
+			Cards::Controls::cardPanelsBackline[player, card]->Visible = false;
+			DiscardPile[player].push_back(BacklineCards[player].at(cardBackline));
+			BacklineCards[player].erase(BacklineCards[player].begin() + cardBackline);
+			for (int k = 0; k > MAX_CARDS_FRONTLINE; k++)
+			{
+				if (Cards::Controls::cardPanels[1 - player, k]->Visible == true 
+					&& (Cards::Controls::cardnames[1 - player, k]->Text == "Meuchler"
+					|| Cards::Controls::cardnames[1 - player, k]->Text == "Saboteur")) break;
+				else cardFrontline++;
+			}
+			Cards::Controls::cardPanels[1 - player, cardFrontline]->Visible = false;
+			DiscardPile[1 - player].push_back(FrontlineCards[1 - player].back());
+			FrontlineCards[1 - player].pop_back();
+			Cards::Controls::button1->Enabled = true;
+			Cards::Controls::button1->Text = "Weiter";
+			flag_assassin[1 - player] = 0;
+			flag_saboteur[1 - player] = 0;
+			flag_possible = false;
+			if (cardFrontline == 0 && attacker == 1 - player)
+			{
+				flag_attacker = false;
+				showMessage(1 - player, TEXT_ATTACK);
+			}
+			else
+				showMessage(player, TEXT_ATTACK);
+			return;
+		}
+		if ((Cards::Controls::cardskillsBackline[player, card]->Text == NAME_SKILL20					// Heilung
+			|| Cards::Controls::cardskill2sBackline[player, card]->Text == NAME_SKILL20)
+			)
+		{
+			for (int i = 0; i < MAX_CARDS_FRONTLINE; i++)
+			{
+				if (Cards::Controls::cardPanels[player, i]->Visible == true) continue;
+				else
+				{
+					FrontlineCards[player].push_back(DiscardPile[player].back());
+					DiscardPile[player].pop_back();
+					Cards::Controls::cardnames[player, i]->Text = gcnew System::String(FrontlineCards[player].back().name.data());
+					Cards::Controls::cardstrengths[player, i]->Text = FrontlineCards[player].back().strength.ToString();
+					Cards::Controls::cardskills[player, i]->Text = gcnew System::String(FrontlineCards[player].back().writeSkill(FrontlineCards[player].back().skill).data());
+					Cards::Controls::cardskill2s[player, i]->Text = gcnew System::String(FrontlineCards[player].back().writeSkill(FrontlineCards[player].back().skill2).data());
+					Cards::Controls::cardtraits[player, i]->Text = gcnew System::String(FrontlineCards[player].back().traits.data());
+					Cards::Controls::cardPanels[player, i]->Visible = true;
+					Cards::Controls::cardPanels[player, i]->BringToFront();
+					Cards::Controls::cardPanelsBackline[player, card]->Visible = false;
+					DiscardPile[player].push_back(BacklineCards[player].at(cardBackline));
+					BacklineCards[player].erase(BacklineCards[player].begin() + cardBackline);
+					return;
+				}
+			}
+			return;
+		}
+		if (flag_banner[player] == false && flag_attacker == false && (Cards::Controls::cardskillsBackline[player, card]->Text == NAME_SKILL17
+			|| Cards::Controls::cardskill2sBackline[player, card]->Text == NAME_SKILL17))  // Banner
 		{
 			flag_banner[player] = true;
 			Cards::Controls::cardPanelsBackline[player, card]->Visible = false;
+			DiscardPile[player].push_back(BacklineCards[player].at(cardBackline));
+			BacklineCards[player].erase(BacklineCards[player].begin() + cardBackline);
 			return;
 		}
-		if ((Cards::Controls::cardskillsBackline[player, card]->Text == NAME_SKILL10 || Cards::Controls::cardskill2sBackline[player, card]->Text == NAME_SKILL10) && Deck[1 - player].size() != pos[1 - player])  // Katapult
+		if ((Cards::Controls::cardskillsBackline[player, card]->Text == NAME_SKILL10 || Cards::Controls::cardskill2sBackline[player, card]->Text == NAME_SKILL10)
+			&& Deck[1 - player].size() != pos[1 - player])  // Katapult
 		{
 			DiscardPile[1 - player].push_back(Deck[1 - player].at(pos[1 - player]));
 			Cards::Controls::cardPanelsBackline[player, card]->Visible = false;
-			DiscardPile[player].push_back(BacklineCards[player].at(card));
+			DiscardPile[player].push_back(BacklineCards[player].at(cardBackline));
+			BacklineCards[player].erase(BacklineCards[player].begin() + cardBackline);
 			pos[1 - player]++;
-			updatePiles();
 			return;
 		}
 		if ((Cards::Controls::cardskillsBackline[player, card]->Text == NAME_SKILL13 || Cards::Controls::cardskillsBackline[player, card]->Text == NAME_SKILL11
@@ -728,8 +852,8 @@ namespace Cards
 						offsetFrontlineCards[1 - player]++;
 					}
 					Cards::Controls::cardPanelsBackline[player, card]->Visible = false;
-					DiscardPile[player].push_back(BacklineCards[player].at(card));
-					updatePiles();
+					DiscardPile[player].push_back(BacklineCards[player].at(cardBackline));
+					BacklineCards[player].erase(BacklineCards[player].begin() + cardBackline);
 					return;
 				}
 			}
@@ -891,6 +1015,7 @@ namespace Cards
 
 	void highlightUseableCards()
 	{
+		int cardBackline = -1;
 		if (phase < 20)
 		{
 			for (int j = 0; j < COUNT_PLAYERS; j++)
@@ -915,7 +1040,36 @@ namespace Cards
 					{
 						if (Cards::Controls::cardPanelsBackline[j, i]->Visible == true)
 						{
-							if (
+							if (flag_assassin[j] || flag_saboteur[j])																			// Meuchler
+								Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_TYP2;
+							else if (flag_assassin[1 - j])
+							{
+								cardBackline++;
+								if (BacklineCards[j].at(cardBackline).traits.find(NAME_TRAIT1) != std::string::npos
+									|| BacklineCards[j].at(cardBackline).traits.find(NAME_TRAIT4) != std::string::npos
+									|| BacklineCards[j].at(cardBackline).traits.find(NAME_TRAIT5) != std::string::npos
+									|| BacklineCards[j].at(cardBackline).traits.find(NAME_TRAIT6) != std::string::npos
+									|| BacklineCards[j].at(cardBackline).traits.find(NAME_TRAIT7) != std::string::npos
+									|| BacklineCards[j].at(cardBackline).traits.find(NAME_TRAIT9) != std::string::npos)
+								{
+									flag_possible = true;
+									Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_HIGHLIGHT2;
+								}
+								else
+									Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_TYP2;
+							}
+							else if (flag_saboteur[1 - j])
+							{
+								cardBackline++;
+								if (BacklineCards[j].at(cardBackline).traits.find(NAME_TRAIT8) != std::string::npos)
+								{
+									flag_possible = true;
+									Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_HIGHLIGHT2;
+								}
+								else
+									Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_TYP2;
+							}
+							else if (
 								((Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL13 || Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL11
 									|| Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL13 || Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL11)
 									&& j == 1 - attacker && flag_defenders == false && flag_attacker == true)			// Fernkampf
@@ -923,9 +1077,16 @@ namespace Cards
 									|| Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL17))				// Banner
 								|| ((Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL10 || Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL10)
 									&& Deck[1 - j].size() != pos[1 - j])											 // Katapult
+								|| ((Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL20 || Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL20)
+									&& DiscardPile[j].size() > 0 && flag_attacker && DiscardPile[j].back().type == 1 &&
+									(DiscardPile[j].back().traits.find(NAME_TRAIT1) != std::string::npos
+									|| DiscardPile[j].back().traits.find(NAME_TRAIT4) != std::string::npos  
+									|| DiscardPile[j].back().traits.find(NAME_TRAIT5) != std::string::npos 
+									|| DiscardPile[j].back().traits.find(NAME_TRAIT7) != std::string::npos
+									|| DiscardPile[j].back().traits.find(NAME_TRAIT9) != std::string::npos))										 // Heilung
 								)
 							{
-								Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_HIGHLIGHT;;
+								Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_HIGHLIGHT1;
 							}
 							else
 								Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_TYP2;
@@ -947,7 +1108,7 @@ namespace Cards
 								&& phase > 20 && flag_attacker == false)					// Jetzt ihr & Kundschafter & Überblick & Feldscher
 							)
 						{
-							Cards::Controls::cardPanelsHand[j, i]->BackColor = System::Drawing::Color::COLOR_HIGHLIGHT;;
+							Cards::Controls::cardPanelsHand[j, i]->BackColor = System::Drawing::Color::COLOR_HIGHLIGHT1;;
 						}
 						else
 							Cards::Controls::cardPanelsHand[j, i]->BackColor = System::Drawing::Color::COLOR_TYP3;
@@ -955,5 +1116,26 @@ namespace Cards
 				}
 			}
 		}
+	}
+
+	void startMatch()
+	{
+		phase = 20;
+		for (int j = 0; j < COUNT_PLAYERS; j++)
+			std::sort(Deck[j].begin(), Deck[j].end(), SortCards());
+		Cards::Controls::button1->Enabled = true;
+		Cards::Controls::button1->Text = "Decks mischen";
+		highlightUseableCards();
+		showMessage(attacker, TEXT_ATTACK);
+	}
+
+	void showMessage(int player, System::String^ message)
+	{
+		System::String^ stringPart;
+		if (player == 1) stringPart = "Rechter ";
+		else stringPart = "Linker ";
+		message = System::String::Concat(stringPart, message);
+		Cards::Controls::messageLabel[player]->Text = message;
+		Cards::Controls::messageLabel[1 - player]->Text = "";
 	}
 }

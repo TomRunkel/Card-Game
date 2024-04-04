@@ -49,6 +49,14 @@ namespace CardGame {
 	private: System::Windows::Forms::Label^ cardsRemainL;
 	private: System::Windows::Forms::Label^ cardsRemainR;
 	private: System::Windows::Forms::Label^ MessageLabelR;
+	private: System::Windows::Forms::Button^ buttonL1;
+	private: System::Windows::Forms::Button^ buttonL2;
+	private: System::Windows::Forms::Button^ buttonR2;
+
+
+
+	private: System::Windows::Forms::Button^ buttonR1;
+
 
 	private:
 		/// <summary>
@@ -72,6 +80,10 @@ namespace CardGame {
 			this->cardsRemainL = (gcnew System::Windows::Forms::Label());
 			this->cardsRemainR = (gcnew System::Windows::Forms::Label());
 			this->MessageLabelR = (gcnew System::Windows::Forms::Label());
+			this->buttonL1 = (gcnew System::Windows::Forms::Button());
+			this->buttonL2 = (gcnew System::Windows::Forms::Button());
+			this->buttonR2 = (gcnew System::Windows::Forms::Button());
+			this->buttonR1 = (gcnew System::Windows::Forms::Button());
 			this->panelL->SuspendLayout();
 			this->PanelR->SuspendLayout();
 			this->SuspendLayout();
@@ -168,12 +180,60 @@ namespace CardGame {
 			this->MessageLabelR->TabIndex = 10;
 			this->MessageLabelR->TextAlign = System::Drawing::ContentAlignment::MiddleCenter;
 			// 
+			// buttonL1
+			// 
+			this->buttonL1->Location = System::Drawing::Point(482, 78);
+			this->buttonL1->Name = L"buttonL1";
+			this->buttonL1->Size = System::Drawing::Size(93, 30);
+			this->buttonL1->TabIndex = 11;
+			this->buttonL1->Text = L"Angriff";
+			this->buttonL1->UseVisualStyleBackColor = true;
+			this->buttonL1->Visible = false;
+			this->buttonL1->Click += gcnew System::EventHandler(this, &MyForm::buttonL1_Click);
+			// 
+			// buttonL2
+			// 
+			this->buttonL2->Location = System::Drawing::Point(581, 78);
+			this->buttonL2->Name = L"buttonL2";
+			this->buttonL2->Size = System::Drawing::Size(93, 30);
+			this->buttonL2->TabIndex = 12;
+			this->buttonL2->Text = L"Karte";
+			this->buttonL2->UseVisualStyleBackColor = true;
+			this->buttonL2->Visible = false;
+			this->buttonL2->Click += gcnew System::EventHandler(this, &MyForm::buttonL2_Click);
+			// 
+			// buttonR2
+			// 
+			this->buttonR2->Location = System::Drawing::Point(1727, 78);
+			this->buttonR2->Name = L"buttonR2";
+			this->buttonR2->Size = System::Drawing::Size(93, 30);
+			this->buttonR2->TabIndex = 14;
+			this->buttonR2->Text = L"Karte";
+			this->buttonR2->UseVisualStyleBackColor = true;
+			this->buttonR2->Visible = false;
+			this->buttonR2->Click += gcnew System::EventHandler(this, &MyForm::buttonR2_Click);
+			// 
+			// buttonR1
+			// 
+			this->buttonR1->Location = System::Drawing::Point(1628, 78);
+			this->buttonR1->Name = L"buttonR1";
+			this->buttonR1->Size = System::Drawing::Size(93, 30);
+			this->buttonR1->TabIndex = 13;
+			this->buttonR1->Text = L"Angriff";
+			this->buttonR1->UseVisualStyleBackColor = true;
+			this->buttonR1->Visible = false;
+			this->buttonR1->Click += gcnew System::EventHandler(this, &MyForm::buttonR1_Click);
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::SystemColors::ActiveBorder;
 			this->ClientSize = System::Drawing::Size(1860, 980);
+			this->Controls->Add(this->buttonR2);
+			this->Controls->Add(this->buttonR1);
+			this->Controls->Add(this->buttonL2);
+			this->Controls->Add(this->buttonL1);
 			this->Controls->Add(this->MessageLabelR);
 			this->Controls->Add(this->cardsRemainR);
 			this->Controls->Add(this->cardsRemainL);
@@ -208,10 +268,12 @@ namespace CardGame {
 	private: System::Void CardSelection_Click_Panel(System::Object^ sender, System::EventArgs^ e) {
 		Panel^ senderObject = safe_cast<Panel^>(sender);
 		Cards::chooseCard(System::Convert::ToInt16(senderObject->Tag));
+		Cards::updatePiles();
 	}
 	private: System::Void CardSelection_Click_Label(System::Object^ sender, System::EventArgs^ e) {
 		Label^ senderObject = safe_cast<Label^>(sender);
 		Cards::chooseCard(System::Convert::ToInt16(senderObject->Tag));
+		Cards::updatePiles();
 	}
 	private: System::Void Deck_Click_Panel(System::Object^ sender, System::EventArgs^ e) {
 		if (phase < 21)
@@ -262,7 +324,8 @@ namespace CardGame {
 			Cards::highlightUseableCards();
 			Cards::Controls::button1->Enabled = false;
 			Cards::Controls::button1->Text = counter.ToString();
-			draftCard(DeckA);
+			flag_wait = true;
+			(flag_winner == true) ? draftCard(DeckB) : draftCard(DeckA);
 			return;
 		}
 		if (phase == 20)		// Draftende
@@ -282,7 +345,7 @@ namespace CardGame {
 			if (flag_winner)
 			{
 				Cards::showHandCards();
-				draftHandCard(DeckH);
+				Cards::draftHandCard(DeckH);
 				Cards::Controls::button1->Enabled = false;
 				Cards::Controls::button1->Text = counter.ToString();
 			}
@@ -302,16 +365,7 @@ namespace CardGame {
 		{
 			Cards::clearFrontline();
 			attacker = 1 - attacker;
-			if (attacker == 0)
-			{
-				Cards::Controls::messageLabel[attacker]->Text = LEFT_ATTACK;
-				Cards::Controls::messageLabel[1 - attacker]->Text = "";
-			}
-			else
-			{
-				Cards::Controls::messageLabel[attacker]->Text = RIGHT_ATTACK;
-				Cards::Controls::messageLabel[1 - attacker]->Text = "";
-			}
+			Cards::showMessage(attacker, TEXT_ATTACK);
 		}
 		else if (flag_attacker == false)
 		{
@@ -329,10 +383,10 @@ namespace CardGame {
 		}
 		else 
 		{
-			flag_defenders = true;
 			if (Cards::drawCard(1 - attacker) == -1) Cards::gameOver(attacker);
+			flag_defenders = true;
 		}
-		Cards::updateScore();
+		Cards::updatePiles();
 		turn++;
 	}
 
@@ -426,6 +480,10 @@ namespace CardGame {
 		}
 		for (int j = 0; j < COUNT_PLAYERS; j++)
 		{
+			(j == 0) ? Cards::Controls::buttons[j, 0] = buttonL1
+					 : Cards::Controls::buttons[j, 0] = buttonR1;
+			(j == 0) ? Cards::Controls::buttons[j, 1] = buttonL2
+					 : Cards::Controls::buttons[j, 1] = buttonR2;
 			(j == 0) ? Cards::Controls::cardsRemain[j] = cardsRemainL
 					 : Cards::Controls::cardsRemain[j] = cardsRemainR;
 
@@ -785,5 +843,79 @@ namespace CardGame {
 		Cards::updatePiles();
 		Cards::showHandCards();
 	}
-	};
+	private: System::Void buttonL1_Click(System::Object^ sender, System::EventArgs^ e) {
+		Cards::Controls::buttons[0, 0]->Visible = false;
+		Cards::Controls::buttons[0, 1]->Visible = false;
+		if (flag_matchStart)
+		{
+			Cards::Controls::buttons[0, 0]->Text = "Angriff";
+			Cards::Controls::buttons[0, 1]->Text = "Karte";
+			flag_defenderDeck[0] = 1;
+			playerChoosing = 0;
+			Cards::draftCard(DeckD);
+		}
+		else
+		{
+			attacker = 0;
+			flag_matchStart = true;
+			Cards::Controls::buttons[1, 0]->Visible = true;
+			Cards::Controls::buttons[1, 1]->Visible = true;
+			Cards::Controls::buttons[1, 0]->Text = "Verteidigung";
+			Cards::Controls::buttons[1, 1]->Text = "Feldschlacht";
+			Cards::showMessage(1, TEXT_ATTACK_OR_DRAFT);
+		}
+	}
+	private: System::Void buttonL2_Click(System::Object^ sender, System::EventArgs^ e) {
+		Cards::Controls::buttons[0, 0]->Visible = false;
+		Cards::Controls::buttons[0, 1]->Visible = false;
+		if (flag_matchStart)
+		{
+			Cards::Controls::buttons[0, 0]->Text = "Angriff";
+			Cards::Controls::buttons[0, 1]->Text = "Karte";
+			Cards::startMatch();
+		}
+		else
+		{
+			counter++;
+			draftCard(DeckA);
+		}
+	}
+	private: System::Void buttonR1_Click(System::Object^ sender, System::EventArgs^ e) {
+		Cards::Controls::buttons[1, 0]->Visible = false;
+		Cards::Controls::buttons[1, 1]->Visible = false;
+		if (flag_matchStart)
+		{
+			Cards::Controls::buttons[1, 0]->Text = "Angriff";
+			Cards::Controls::buttons[1, 1]->Text = "Karte";
+			flag_defenderDeck[1] = 1;
+			playerChoosing = 1;
+			Cards::draftCard(DeckD);
+		}
+		else
+		{
+			attacker = 1;
+			flag_matchStart = true;
+			Cards::Controls::buttons[0, 0]->Visible = true;
+			Cards::Controls::buttons[0, 1]->Visible = true;
+			Cards::Controls::buttons[0, 0]->Text = "Verteidigung";
+			Cards::Controls::buttons[0, 1]->Text = "Feldschlacht";
+			Cards::showMessage(0, TEXT_ATTACK_OR_DRAFT);
+		}
+	}
+	private: System::Void buttonR2_Click(System::Object^ sender, System::EventArgs^ e) {
+		Cards::Controls::buttons[1, 0]->Visible = false;
+		Cards::Controls::buttons[1, 1]->Visible = false;
+		if (flag_matchStart)
+		{
+			Cards::Controls::buttons[1, 0]->Text = "Angriff";
+			Cards::Controls::buttons[1, 1]->Text = "Karte";
+			Cards::startMatch();
+		}
+		else
+		{
+			counter++;
+			draftCard(DeckA);
+		}
+	}
+};
 }

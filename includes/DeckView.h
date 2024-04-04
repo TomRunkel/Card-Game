@@ -171,19 +171,15 @@ namespace CardGame {
 			Cards::Controls::cardSkill2sShowDeck[i] = MyPanelskill2;
 			Cards::Controls::cardTraitsShowDeck[i] = MyPaneltraits;
 
-			if (i >= offsetFront[showDeckPlayer] && i < chosenDeck.size() - offsetBack[showDeckPlayer])
-			{
-				Cards::Controls::cardPanelsShowDeck[i]->Click += gcnew System::EventHandler(this, &DeckView::Card_Click_Panel);
-				Cards::Controls::cardNamesShowDeck[i]->Click += gcnew System::EventHandler(this, &DeckView::Card_Click_Label);
-				Cards::Controls::cardStrengthsShowDeck[i]->Click += gcnew System::EventHandler(this, &DeckView::Card_Click_Label);
-				Cards::Controls::cardSkillsShowDeck[i]->Click += gcnew System::EventHandler(this, &DeckView::Card_Click_Label);
-				Cards::Controls::cardSkill2sShowDeck[i]->Click += gcnew System::EventHandler(this, &DeckView::Card_Click_Label);
-				Cards::Controls::cardTraitsShowDeck[i]->Click += gcnew System::EventHandler(this, &DeckView::Card_Click_Label);
-			}
-			else
-			{
+			Cards::Controls::cardPanelsShowDeck[i]->Click += gcnew System::EventHandler(this, &DeckView::Card_Click_Panel);
+			Cards::Controls::cardNamesShowDeck[i]->Click += gcnew System::EventHandler(this, &DeckView::Card_Click_Label);
+			Cards::Controls::cardStrengthsShowDeck[i]->Click += gcnew System::EventHandler(this, &DeckView::Card_Click_Label);
+			Cards::Controls::cardSkillsShowDeck[i]->Click += gcnew System::EventHandler(this, &DeckView::Card_Click_Label);
+			Cards::Controls::cardSkill2sShowDeck[i]->Click += gcnew System::EventHandler(this, &DeckView::Card_Click_Label);
+			Cards::Controls::cardTraitsShowDeck[i]->Click += gcnew System::EventHandler(this, &DeckView::Card_Click_Label);
+
+			if (flag_showDeckWhole == false && (i < offsetFront[showDeckPlayer] || i >= chosenDeck.size() - offsetBack[showDeckPlayer]))
 				Cards::Controls::cardPanelsShowDeck[i]->Enabled = false;
-			}
 		}
 	}
 	private: System::Void DeckView_FormClosed(System::Object^ sender, System::Windows::Forms::FormClosedEventArgs^ e) {

@@ -173,12 +173,16 @@ namespace Cards
 
 	void updateScore()
 	{
+		whosTurn = attacker ^ flag_attacker;
+		int cardFrontline;
+		int cardBackline;
 		int score[COUNT_PLAYERS] = { 0, 0 };
 		bool firstVisible[COUNT_PLAYERS] = { true, true };
 		for (int j = 0; j < COUNT_PLAYERS; j++)
 		{
 			countCards[j] = 0;
 			count_goblinfactor[j] = 0;
+			count_elves[j] = 0;
 			flag_undead[j] = false;
 			flag_robust[j] = false;
 			flag_cavalry[j] = false;
@@ -188,29 +192,38 @@ namespace Cards
 		}
 		for (int j = 0; j < COUNT_PLAYERS; j++)
 		{
+			cardBackline = -1;
 			for (int i = 0; i < MAX_CARDS_BACKLINE; i++)
 			{
 				if (Cards::Controls::cardPanelsBackline[j, i]->Visible == true)
 				{
+					cardBackline++;
 					if (Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL9 || Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL9)								// Elfenschützen
 						Cards::Controls::cardstrengthsBackline[j, i]->Text = discardSearch(j, true, NAME_TRAIT7).ToString();
 					if (Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL7 || Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL7) count_goblinfactor[j] += 2;	// Orktreiber
 					if (Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL14 || Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL14) flag_lich[j] = true;		// Lich
+					if (BacklineCards[j].at(cardBackline).traits.find(NAME_TRAIT7) != std::string::npos) count_elves[j]++;																//Elfen
 				}
 			}
 		}
 		for (int j = 0; j < COUNT_PLAYERS; j++)
 		{
+			cardFrontline = -1;
 			for (int i = 0; i < MAX_CARDS_FRONTLINE; i++)
 			{
 				if (Cards::Controls::cardPanels[j, i]->Visible == true)
 				{
+					cardFrontline++;
 					countCards[j]++; 
-					if (FrontlineCards[j].at(i).traits.find(NAME_TRAIT3) != std::string::npos) flag_robust[j] = true;													// robust
-					if (FrontlineCards[j].at(i).traits.find(NAME_TRAIT2) != std::string::npos) flag_cavalry[j] = true;													// Kavalerie
-					if (FrontlineCards[j].at(i).traits.find(NAME_TRAIT1) != std::string::npos) flag_humen[j] = true;													// Mensch
-					if (FrontlineCards[j].at(i).traits.find(NAME_TRAIT7) != std::string::npos) flag_elves[j] = true;													// Elf
-					if (FrontlineCards[j].at(i).traits.find(NAME_TRAIT6) != std::string::npos) flag_undead[j] = true;													// untot
+					if (FrontlineCards[j].at(cardFrontline).traits.find(NAME_TRAIT3) != std::string::npos) flag_robust[j] = true;													// robust
+					if (FrontlineCards[j].at(cardFrontline).traits.find(NAME_TRAIT2) != std::string::npos) flag_cavalry[j] = true;													// Kavalerie
+					if (FrontlineCards[j].at(cardFrontline).traits.find(NAME_TRAIT1) != std::string::npos) flag_humen[j] = true;													// Mensch
+					if (FrontlineCards[j].at(cardFrontline).traits.find(NAME_TRAIT7) != std::string::npos)																			// Elfen
+					{
+						flag_elves[j] = true;
+						count_elves[j]++;
+					}
+					if (FrontlineCards[j].at(cardFrontline).traits.find(NAME_TRAIT6) != std::string::npos) flag_undead[j] = true;													// untot
 					if (Cards::Controls::cardskills[j, i]->Text == NAME_SKILL6 || Cards::Controls::cardskill2s[j, i]->Text == NAME_SKILL6) count_goblinfactor[j]++;		// Goblinhorde
 					if (Cards::Controls::cardskills[j, i]->Text == NAME_SKILL7 || Cards::Controls::cardskill2s[j, i]->Text == NAME_SKILL7) count_goblinfactor[j] += 2;	// Goblinboss
 				}
@@ -218,28 +231,32 @@ namespace Cards
 		}
 		for (int j = 0; j < COUNT_PLAYERS; j++)
 		{
+			cardFrontline = -1;
 			for (int i = 0; i < MAX_CARDS_FRONTLINE; i++)
 			{
 				if (Cards::Controls::cardPanels[j, i]->Visible == true)
 				{
-					Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(i).strength).ToString();
+					cardFrontline++;
+					Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(cardFrontline).strength).ToString();
 
 					if (flag_robust[1 - j] && (Cards::Controls::cardskills[j, i]->Text == NAME_SKILL5 || Cards::Controls::cardskill2s[j, i]->Text == NAME_SKILL5))		// Durschlagskraft
-						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(i).strength * 2).ToString();
+						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(cardFrontline).strength * 2).ToString();
 					if (flag_cavalry[1 - j] && (Cards::Controls::cardskills[j, i]->Text == NAME_SKILL4 || Cards::Controls::cardskill2s[j, i]->Text == NAME_SKILL4))		// Speere
-						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(i).strength * 2).ToString();
+						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(cardFrontline).strength * 2).ToString();
 					if (flag_undead[j] == false && flag_undead[1 - j] && (Cards::Controls::cardskills[j, i]->Text == NAME_SKILL16 || Cards::Controls::cardskill2s[j, i]->Text == NAME_SKILL16))	// Mönche
-						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(i).strength + 4).ToString();
+						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(cardFrontline).strength + 4).ToString();
 					if (attacker == j  && (Cards::Controls::cardskills[j, i]->Text == NAME_SKILL3 || Cards::Controls::cardskill2s[j, i]->Text == NAME_SKILL3))			// Ansturm
-						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(i).strength * 2).ToString();
-					if (FrontlineCards[j].at(i).traits.find(NAME_TRAIT4) != std::string::npos)																			// Goblin
+						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(cardFrontline).strength * 2).ToString();
+					if (FrontlineCards[j].at(cardFrontline).traits.find(NAME_TRAIT4) != std::string::npos)																			// Goblin
 						Cards::Controls::cardstrengths[j, i]->Text = (count_goblinfactor[j] / 2).ToString();
+					if (Cards::Controls::cardskills[j, i]->Text == NAME_SKILL23 || Cards::Controls::cardskill2s[j, i]->Text == NAME_SKILL23)							// Zentauren
+						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(cardFrontline).strength + count_elves[j]).ToString();
 					if (Cards::Controls::cardskills[j, i]->Text == NAME_SKILL2 || Cards::Controls::cardskill2s[j, i]->Text == NAME_SKILL2)								// Masseneuphorie
-						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(i).strength + countCards[j]).ToString();
+						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(cardFrontline).strength + countCards[j]).ToString();
 					if (Cards::Controls::cardskills[j, i]->Text == NAME_SKILL19 || Cards::Controls::cardskill2s[j, i]->Text == NAME_SKILL19)							// Blutdurst
-						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(i).strength + countCards[1 - j]).ToString();
+						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(cardFrontline).strength + countCards[1 - j]).ToString();
 					if (Cards::Controls::cardskills[j, i]->Text == NAME_SKILL18 || Cards::Controls::cardskill2s[j, i]->Text == NAME_SKILL18)							// Hass
-						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(i).strength + flag_humen[1 - j] * 2 + flag_elves[1 - j] * 2).ToString();
+						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(cardFrontline).strength + flag_humen[1 - j] * 2 + flag_elves[1 - j] * 2).ToString();
 					if (Cards::Controls::cardskills[j, i]->Text == NAME_SKILL12 || Cards::Controls::cardskill2s[j, i]->Text == NAME_SKILL12)							// Skelettkrieger
 					{
 						if (flag_lich[j])
@@ -248,14 +265,15 @@ namespace Cards
 							Cards::Controls::cardstrengths[j, i]->Text = maxStrength(DiscardPile[1 - j]).ToString();
 					}
 					if (Cards::Controls::cardskills[j, i]->Text == NAME_SKILL9 || Cards::Controls::cardskill2s[j, i]->Text == NAME_SKILL9)								// Elfen
-						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(i).strength + discardSearch(j, true, NAME_TRAIT7)).ToString();
+						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(cardFrontline).strength + discardSearch(j, true, NAME_TRAIT7)).ToString();
 					if (Cards::Controls::cardskills[j, i]->Text == NAME_SKILL8 || Cards::Controls::cardskill2s[j, i]->Text == NAME_SKILL8)								// Ghule
-						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(i).strength
+						Cards::Controls::cardstrengths[j, i]->Text = (FrontlineCards[j].at(cardFrontline).strength
 							+ (discardSearch(1 - j, false, NAME_TRAIT1) | (flag_lich[j] & (bool)discardSearch(j, false, NAME_TRAIT1)))
 							+ (discardSearch(1 - j, false, NAME_TRAIT4) | (flag_lich[j] & (bool)discardSearch(j, false, NAME_TRAIT4)))
 							+ (discardSearch(1 - j, false, NAME_TRAIT5) | (flag_lich[j] & (bool)discardSearch(j, false, NAME_TRAIT5)))
 							+ (discardSearch(1 - j, false, NAME_TRAIT7) | (flag_lich[j] & (bool)discardSearch(j, false, NAME_TRAIT7)))
-							+ (discardSearch(1 - j, false, NAME_TRAIT9) | (flag_lich[j] & (bool)discardSearch(j, false, NAME_TRAIT9)))).ToString();
+							+ (discardSearch(1 - j, false, NAME_TRAIT9) | (flag_lich[j] & (bool)discardSearch(j, false, NAME_TRAIT9)))
+							+ (discardSearch(1 - j, false, NAME_TRAIT11) | (flag_lich[j] & (bool)discardSearch(j, false, NAME_TRAIT11)))).ToString();
 					Cards::Controls::cardstrengths[j, i]->Text = (System::Convert::ToInt16(Cards::Controls::cardstrengths[j, i]->Text) + flag_banner[j]).ToString();	// Banner
 					if (firstVisible[j])																																	// Fernkampf (always last!)
 					{
@@ -419,6 +437,7 @@ namespace Cards
 
 	void clearFrontline()
 	{
+		attacker = 1 - attacker;
 		flag_defenders = false;
 		flag_attacker = false;
 		for (int j = 0; j < COUNT_PLAYERS; j++)
@@ -802,9 +821,10 @@ namespace Cards
 					Cards::Controls::cardtraits[player, i]->Text = gcnew System::String(FrontlineCards[player].back().traits.data());
 					Cards::Controls::cardPanels[player, i]->Visible = true;
 					Cards::Controls::cardPanels[player, i]->BringToFront();
-					Cards::Controls::cardPanelsBackline[player, card]->Visible = false;
 					DiscardPile[player].push_back(BacklineCards[player].at(cardBackline));
 					BacklineCards[player].erase(BacklineCards[player].begin() + cardBackline);
+					Cards::Controls::cardPanelsBackline[player, card]->Visible = false;
+					flag_attacker = true;
 					return;
 				}
 			}
@@ -1050,7 +1070,8 @@ namespace Cards
 									|| BacklineCards[j].at(cardBackline).traits.find(NAME_TRAIT5) != std::string::npos
 									|| BacklineCards[j].at(cardBackline).traits.find(NAME_TRAIT6) != std::string::npos
 									|| BacklineCards[j].at(cardBackline).traits.find(NAME_TRAIT7) != std::string::npos
-									|| BacklineCards[j].at(cardBackline).traits.find(NAME_TRAIT9) != std::string::npos)
+									|| BacklineCards[j].at(cardBackline).traits.find(NAME_TRAIT9) != std::string::npos
+									|| BacklineCards[j].at(cardBackline).traits.find(NAME_TRAIT11) != std::string::npos)
 								{
 									flag_possible = true;
 									Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_HIGHLIGHT2;
@@ -1069,6 +1090,8 @@ namespace Cards
 								else
 									Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_TYP2;
 							}
+							else if (whosTurn != j)
+								Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_TYP2;
 							else if (
 								((Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL13 || Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL11
 									|| Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL13 || Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL11)
@@ -1078,12 +1101,15 @@ namespace Cards
 								|| ((Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL10 || Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL10)
 									&& Deck[1 - j].size() != pos[1 - j])											 // Katapult
 								|| ((Cards::Controls::cardskillsBackline[j, i]->Text == NAME_SKILL20 || Cards::Controls::cardskill2sBackline[j, i]->Text == NAME_SKILL20)
-									&& DiscardPile[j].size() > 0 && flag_attacker && DiscardPile[j].back().type == 1 &&
-									(DiscardPile[j].back().traits.find(NAME_TRAIT1) != std::string::npos
+									&& DiscardPile[j].size() > 0 && DiscardPile[j].back().type == 1
+									&& (System::Convert::ToInt16(Cards::Controls::score[j]->Text) < System::Convert::ToInt16(Cards::Controls::score[1 - j]->Text)
+										|| System::Convert::ToInt16(Cards::Controls::score[j]->Text) == 0)
+									&& (DiscardPile[j].back().traits.find(NAME_TRAIT1) != std::string::npos
 									|| DiscardPile[j].back().traits.find(NAME_TRAIT4) != std::string::npos  
 									|| DiscardPile[j].back().traits.find(NAME_TRAIT5) != std::string::npos 
 									|| DiscardPile[j].back().traits.find(NAME_TRAIT7) != std::string::npos
-									|| DiscardPile[j].back().traits.find(NAME_TRAIT9) != std::string::npos))										 // Heilung
+									|| DiscardPile[j].back().traits.find(NAME_TRAIT9) != std::string::npos
+									|| DiscardPile[j].back().traits.find(NAME_TRAIT11) != std::string::npos))										 // Heilung
 								)
 							{
 								Cards::Controls::cardPanelsBackline[j, i]->BackColor = System::Drawing::Color::COLOR_HIGHLIGHT1;

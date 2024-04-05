@@ -64,90 +64,14 @@ int main(array<String^>^ args)
 				Meuchler.addTraits(NAME_TRAIT1);
 	Cards::Card Saboteur("Saboteur", 0, 1, 22);
 				Saboteur.addTraits(NAME_TRAIT1);
+	Cards::Card Zentauren("Zentauren", 2, 1, 23);
+				Zentauren.addTraits(NAME_TRAIT11);
 //*****************************************************
 // Defender Deck:
 	Cards::Card Palisade("Palisade", 2, 1);
 				Palisade.addTraits(NAME_TRAIT3);
 //*****************************************************
-				/*
-				Deck[0].push_back(Katapult);
-				Deck[0].push_back(Katapult);
-				Deck[0].push_back(Katapult);
-				Deck[0].push_back(Katapult);
-				Deck[0].push_back(Heilerin);
-				Deck[0].push_back(Heilerin);
-				Deck[0].push_back(Heilerin);
-				Deck[0].push_back(Heilerin);
-				Deck[0].push_back(Balliste);
-				Deck[0].push_back(Balliste);
-				Deck[0].push_back(Balliste);
-				Deck[0].push_back(Bannertraeger);
-				Deck[0].push_back(Bannertraeger);
-				Deck[0].push_back(Bannertraeger);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Schwertkaempfer);
-				Deck[0].push_back(Saboteur);
-				Deck[0].push_back(Saboteur);
-				Deck[0].push_back(Saboteur);
-				Deck[0].push_back(Saboteur);
-				Deck[0].push_back(Saboteur);
-				Deck[0].push_back(Meuchler);
-				Deck[0].push_back(Meuchler);
-				Deck[0].push_back(Meuchler);
-				Deck[0].push_back(Meuchler);
-
-				Deck[1].push_back(Katapult);
-				Deck[1].push_back(Heilerin);
-				Deck[1].push_back(Katapult);
-				Deck[1].push_back(Heilerin);
-				Deck[1].push_back(Katapult);
-				Deck[1].push_back(Heilerin);
-				Deck[1].push_back(Katapult);
-				Deck[1].push_back(Heilerin);
-				Deck[1].push_back(Balliste);
-				Deck[1].push_back(Balliste);
-				Deck[1].push_back(Balliste);
-				Deck[1].push_back(Balliste);
-				Deck[1].push_back(Bannertraeger);
-				Deck[1].push_back(Bannertraeger);
-				Deck[1].push_back(Bannertraeger);
-				Deck[1].push_back(Schwertkaempfer);
-				Deck[1].push_back(Schwertkaempfer);
-				Deck[1].push_back(Schwertkaempfer);
-				Deck[1].push_back(Schwertkaempfer);
-				Deck[1].push_back(Schwertkaempfer);
-				Deck[1].push_back(Schwertkaempfer);
-				Deck[1].push_back(Schwertkaempfer);
-				Deck[1].push_back(Schwertkaempfer);
-				Deck[1].push_back(Schwertkaempfer);
-				Deck[1].push_back(Schwertkaempfer);
-				Deck[1].push_back(Schwertkaempfer);
-				Deck[1].push_back(Schwertkaempfer);
-				Deck[1].push_back(Schwertkaempfer);
-				Deck[1].push_back(Saboteur);
-				Deck[1].push_back(Saboteur);
-				Deck[1].push_back(Saboteur);
-				Deck[1].push_back(Saboteur);
-				Deck[1].push_back(Saboteur);
-				Deck[1].push_back(Meuchler);
-				Deck[1].push_back(Meuchler);
-				Deck[1].push_back(Meuchler);
-				*/
-
+	
 
 	for (int i = 0; i < 8; i++) DeckA.push_back(Bauern);
 	for (int i = 0; i < 6; i++) DeckA.push_back(Keulentraeger);
@@ -169,6 +93,7 @@ int main(array<String^>^ args)
 
 	for (int i = 0; i < 5; i++) DeckB.push_back(Oger);
 	for (int i = 0; i < 5; i++) DeckB.push_back(Moenche);
+	for (int i = 0; i < 5; i++) DeckB.push_back(Zentauren);
 	for (int i = 0; i < 4; i++) DeckB.push_back(Heilerin);
 	for (int i = 0; i < 4; i++) DeckB.push_back(Balliste);
 	for (int i = 0; i < 4; i++) DeckB.push_back(Katapult);
@@ -179,6 +104,33 @@ int main(array<String^>^ args)
 	for (int i = 0; i < 2; i++) DeckB.push_back(Hauptmann);
 
 	for (int i = 0; i < 30; i++) DeckD.push_back(Palisade);
+
+	Deck[0].push_back(Zentauren);
+	Deck[0].push_back(Zentauren);
+	Deck[0].push_back(Zentauren);
+	Deck[0].push_back(Heilerin);
+	Deck[0].push_back(Heilerin);
+	Deck[0].push_back(Elfenkrieger);
+	Deck[0].push_back(Elfenkrieger);
+	Deck[0].push_back(Elfenkrieger);
+	Deck[0].push_back(Hauptmann);
+	Deck[0].push_back(Hauptmann);
+	Deck[0].push_back(Hauptmann);
+
+	Deck[1].push_back(Oger);
+	Deck[1].push_back(Oger);
+	Deck[1].push_back(Oger);
+	Deck[1].push_back(Oger);
+	Deck[1].push_back(Elfenkrieger);
+	Deck[1].push_back(Elfenkrieger);
+	Deck[1].push_back(Elfenkrieger);
+	Deck[1].push_back(Elfenkrieger);
+	Deck[1].push_back(Elfenkrieger);
+	Deck[1].push_back(Oger);
+	Deck[1].push_back(Heilerin);
+	Deck[1].push_back(Heilerin);
+	Deck[1].push_back(Heilerin);
+	Deck[1].push_back(Heilerin);
 
 	//*************** INITIATING HANDCARDS ****************
 	Cards::HandCard ErsteWelle(NAME_EFFECT1, TEXT_EFFECT1);

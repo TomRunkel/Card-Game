@@ -241,6 +241,7 @@ namespace CardGame {
 			this->Controls->Add(this->PanelR);
 			this->Controls->Add(this->panelL);
 			this->Controls->Add(this->StartButton);
+			this->KeyPreview = true;
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
 			this->Name = L"MyForm";
@@ -248,6 +249,7 @@ namespace CardGame {
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Card Game";
 			this->Load += gcnew System::EventHandler(this, &MyForm::MyForm_Load);
+			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MyForm::MyForm_KeyDown);
 			this->panelL->ResumeLayout(false);
 			this->PanelR->ResumeLayout(false);
 			this->ResumeLayout(false);
@@ -364,7 +366,6 @@ namespace CardGame {
 		   && System::Convert::ToInt16(Cards::Controls::score[1 - attacker]->Text) >= System::Convert::ToInt16(Cards::Controls::score[attacker]->Text))
 		{
 			Cards::clearFrontline();
-			attacker = 1 - attacker;
 			Cards::showMessage(attacker, TEXT_ATTACK);
 		}
 		else if (flag_attacker == false)
@@ -917,5 +918,21 @@ namespace CardGame {
 			draftCard(DeckA);
 		}
 	}
+private: System::Void MyForm_KeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e) {
+	if (StartButton->Enabled == false) return;
+	switch (e->KeyCode)
+	{
+	case Keys::A:
+		if (whosTurn == 0)
+			StartButton_Click(sender, e);
+		break;
+	case Keys::L:
+		if (whosTurn == 1)
+			StartButton_Click(sender, e);
+		break;
+	default:
+		break;
+	}
+}
 };
 }

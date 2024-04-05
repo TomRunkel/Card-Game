@@ -105,33 +105,6 @@ int main(array<String^>^ args)
 
 	for (int i = 0; i < 30; i++) DeckD.push_back(Palisade);
 
-	Deck[0].push_back(Zentauren);
-	Deck[0].push_back(Zentauren);
-	Deck[0].push_back(Zentauren);
-	Deck[0].push_back(Heilerin);
-	Deck[0].push_back(Heilerin);
-	Deck[0].push_back(Elfenkrieger);
-	Deck[0].push_back(Elfenkrieger);
-	Deck[0].push_back(Elfenkrieger);
-	Deck[0].push_back(Hauptmann);
-	Deck[0].push_back(Hauptmann);
-	Deck[0].push_back(Hauptmann);
-
-	Deck[1].push_back(Oger);
-	Deck[1].push_back(Oger);
-	Deck[1].push_back(Oger);
-	Deck[1].push_back(Oger);
-	Deck[1].push_back(Elfenkrieger);
-	Deck[1].push_back(Elfenkrieger);
-	Deck[1].push_back(Elfenkrieger);
-	Deck[1].push_back(Elfenkrieger);
-	Deck[1].push_back(Elfenkrieger);
-	Deck[1].push_back(Oger);
-	Deck[1].push_back(Heilerin);
-	Deck[1].push_back(Heilerin);
-	Deck[1].push_back(Heilerin);
-	Deck[1].push_back(Heilerin);
-
 	//*************** INITIATING HANDCARDS ****************
 	Cards::HandCard ErsteWelle(NAME_EFFECT1, TEXT_EFFECT1);
 	Cards::HandCard LetzteReserve(NAME_EFFECT2, TEXT_EFFECT2);
